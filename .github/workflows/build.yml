@@ -57,6 +57,55 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+      - name: Cache ccache files
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.workspace }}/.ccache
+          key: build-ccache-${{ matrix.os }}-${{ matrix.python }}
+          restore-keys: |
+            build-ccache-${{ matrix.os }}-
+            build-ccache-
+      - name: Install packages on Linux
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ccache
+      - name: Install packages on macOS
+        if: ${{ runner.os == 'macOS' }}
+        run: |
+          brew install ccache
+      # Don't rely only on bazel cache
+      - name: Prepare ccache
+        shell: bash
+        run: |
+          BINDIR="${{ runner.workspace }}/.bin"
+          CCACHE_DIR=${{ runner.workspace }}/.ccache
+          mkdir -pv "${BINDIR}"
+          mkdir -pv "${CCACHE_DIR}"
+          for compiler in cc c++ gcc g++ clang clang++; do
+              if which "${compiler}" &> /dev/null; then
+                  # Copy instead of symlink:
+                  # <https://github.com/ccache/ccache/discussions/1279#discussioncomment-5687710>.
+                  cp -v $(which ccache) "${BINDIR}/${compiler}"
+              fi
+          done
+          echo "CCACHE_DIR=${CCACHE_DIR}" >> "${GITHUB_ENV}"
+          echo "PATH=${BINDIR}:${PATH}" >> "${GITHUB_ENV}"
+          if [[ ${{ runner.os }} == "macOS" ]]; then
+              echo "CC=${BINDIR}/clang" >> "${GITHUB_ENV}"
+          else
+              echo "CC=${BINDIR}/gcc" >> "${GITHUB_ENV}"
+          fi
+      - name: Show compilers
+        run: |
+          for compiler in cc c++ gcc g++ clang clang++; do
+              which ${compiler} || true
+              ${compiler} --version || true
+              echo "-----"
+          done
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
       - uses: bazel-contrib/setup-bazel@0.14.0
         name: Set up Bazel
         with:
@@ -70,11 +119,11 @@ jobs:
       - name: Build enzymexlamlir-opt
         timeout-minutes: 180
         run: |
-          bazel build --color=yes //:enzymexlamlir-opt --test_output=errors
+          bazel build --repo_env=CC --color=yes //:enzymexlamlir-opt --test_output=errors --sandbox_writable_path=${CCACHE_DIR}
       - name: Build wheel
         timeout-minutes: 240
         run: |
-          bazel build --color=yes :wheel --test_output=errors
+          bazel build --repo_env=CC --color=yes :wheel --test_output=errors
       - name: Upload wheel
         uses: actions/upload-artifact@v4
         with:
@@ -83,11 +132,11 @@ jobs:
           retention-days: 90
       - name: Update Python requirements files
         run: |
-          bazel run --color=yes //builddeps:requirements.update
+          bazel run --repo_env=CC --color=yes //builddeps:requirements.update --sandbox_writable_path=${CCACHE_DIR}
       - name: Run tests
         if: ${{ !startsWith(matrix.os, 'ubuntu-') }}
         run: |
-          bazel test --color=yes --test_output=errors --test_verbose_timeout_warnings //test/...
+          bazel test --repo_env=CC --color=yes --test_output=errors --test_verbose_timeout_warnings //test/... --sandbox_writable_path=${CCACHE_DIR}
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }} 
@@ -95,4 +144,10 @@ jobs:
           name: Enzyme-JAX-tests-${{ matrix.os }}-${{ matrix.python }}
           path: |
             bazel-out/**/test.log
+          retention-days: 90
+      - name: Upload ccache
+        uses: actions/upload-artifact@v4
+        with:
+          name: Enzyme-JAX-ccache-${{ matrix.os }}-${{ matrix.python }}
+          path: "${{ runner.workspace }}/.ccache"
           retention-days: 90
