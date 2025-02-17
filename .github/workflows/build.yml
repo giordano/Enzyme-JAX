@@ -3,7 +3,7 @@ name: Build Enzyme-JAX
 on:
   push:
     branches:
-    - main
+    - '**'
   pull_request:
     branches:
     - main
@@ -22,10 +22,10 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-latest
-          # `ubuntu-22.04-arm` is considered more stable than `ubuntu-24.04-arm`:
-          # <https://github.com/orgs/community/discussions/148648#discussioncomment-12099554>.
-          - ubuntu-22.04-arm
+          # - ubuntu-latest
+          # # `ubuntu-22.04-arm` is considered more stable than `ubuntu-24.04-arm`:
+          # # <https://github.com/orgs/community/discussions/148648#discussioncomment-12099554>.
+          # - ubuntu-22.04-arm
           - macOS-latest
         python:
           - '3.12'
@@ -52,14 +52,14 @@ jobs:
           bazel build --color=yes //:enzymexlamlir-opt --test_output=errors
         env:
           HERMETIC_PYTHON_VERSION: ${{ matrix.python }}
-      - name: Build wheel
-        run: |
-          bazel build --color=yes :wheel --test_output=errors
-        env:
-          HERMETIC_PYTHON_VERSION: ${{ matrix.python }}
-      - name: Upload wheel
-        uses: actions/upload-artifact@v4
-        with:
-          name: Enzyme-JAX-Wheel-${{ matrix.os }}-${{ matrix.python }}
-          path: "bazel-bin/*.whl"
-          retention-days: 90
+      # - name: Build wheel
+      #   run: |
+      #     bazel build --color=yes :wheel --test_output=errors
+      #   env:
+      #     HERMETIC_PYTHON_VERSION: ${{ matrix.python }}
+      # - name: Upload wheel
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: Enzyme-JAX-Wheel-${{ matrix.os }}-${{ matrix.python }}
+      #     path: "bazel-bin/*.whl"
+      #     retention-days: 90
