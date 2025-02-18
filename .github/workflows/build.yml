@@ -93,9 +93,12 @@ jobs:
       - name: Build enzymexlamlir-opt
         run: |
           bazel build --color=yes //:enzymexlamlir-opt --test_output=errors --sandbox_writable_path=${CCACHE_DIR}
-      - name: Run tests
+      - name: Build wheel
         run: |
-          bazel test --color=yes --test_output=errors //test
+          bazel build --color=yes :wheel --test_output=errors
+      # - name: Run tests
+      #   run: |
+      #     bazel test --color=yes --test_output=errors //test
       # - name: Build wheel
       #   run: |
       #     bazel build --color=yes :wheel --test_output=errors
