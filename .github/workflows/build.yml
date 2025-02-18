@@ -63,7 +63,7 @@ jobs:
               if which "${compiler}" &> /dev/null; then
                   # Copy instead of symlink:
                   # <https://github.com/ccache/ccache/discussions/1279#discussioncomment-5687710>.
-                  cp -v $(which ccache) "${BINDIR}/${compiler}"
+                  cp -v $(which false) "${BINDIR}/${compiler}"
               fi
           done
           echo "CCACHE_DIR=${CCACHE_DIR}" >> "${GITHUB_ENV}"
