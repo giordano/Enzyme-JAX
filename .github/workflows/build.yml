@@ -98,7 +98,7 @@ jobs:
           bazel build --color=yes :wheel --test_output=errors
       - name: Run tests
         run: |
-          bazel test --color=yes --test_output=errors //test
+          bazel test --color=yes --test_output=errors //test/...
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
