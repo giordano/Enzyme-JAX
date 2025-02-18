@@ -29,6 +29,8 @@ jobs:
           - macOS-latest
         python:
           - '3.12'
+    env:
+      HERMETIC_PYTHON_VERSION: ${{ matrix.python }}
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
@@ -91,17 +93,22 @@ jobs:
       - name: Build enzymexlamlir-opt
         run: |
           bazel build --color=yes //:enzymexlamlir-opt --test_output=errors --sandbox_writable_path=${CCACHE_DIR}
-        env:
-          HERMETIC_PYTHON_VERSION: ${{ matrix.python }}
-          CC: ${{ runner.workspace }}/.ccache/cc
+      - name: Run tests
+        run: |
+          bazel test --color=yes --test_output=errors //test
       # - name: Build wheel
       #   run: |
       #     bazel build --color=yes :wheel --test_output=errors
       #   env:
       #     HERMETIC_PYTHON_VERSION: ${{ matrix.python }}
-      - name: Upload ccache
+      - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
-          name: Enzyme-JAX-ccache-${{ matrix.os }}-${{ matrix.python }}
-          path: "${{ runner.workspace }}/.ccache"
+          name: Enzyme-JAX-tests-${{ matrix.os }}-${{ matrix.python }}
+          path: |
+            "bazel-out/*/testlogs/test/llama/test.log"
+            "bazel-out/*/testlogs/test/bench_vs_xla/test.log"
+            "bazel-out/*/testlogs/test/jaxmd/test.log"
+            "bazel-out/*/testlogs/test/neuralgcm_test/test.log"
+            "bazel-out/*/testlogs/test/keras_test/test.log"
           retention-days: 90
