@@ -93,6 +93,7 @@ jobs:
           bazel build --color=yes //:enzymexlamlir-opt --test_output=errors --sandbox_writable_path=${CCACHE_DIR}
         env:
           HERMETIC_PYTHON_VERSION: ${{ matrix.python }}
+          CC: ${{ runner.workspace }}/.ccache/cc
       # - name: Build wheel
       #   run: |
       #     bazel build --color=yes :wheel --test_output=errors
