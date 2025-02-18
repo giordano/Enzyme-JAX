@@ -96,14 +96,9 @@ jobs:
       - name: Build wheel
         run: |
           bazel build --color=yes :wheel --test_output=errors
-      # - name: Run tests
-      #   run: |
-      #     bazel test --color=yes --test_output=errors //test
-      # - name: Build wheel
-      #   run: |
-      #     bazel build --color=yes :wheel --test_output=errors
-      #   env:
-      #     HERMETIC_PYTHON_VERSION: ${{ matrix.python }}
+      - name: Run tests
+        run: |
+          bazel test --color=yes --test_output=errors //test
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
