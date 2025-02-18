@@ -104,9 +104,5 @@ jobs:
         with:
           name: Enzyme-JAX-tests-${{ matrix.os }}-${{ matrix.python }}
           path: |
-            "bazel-out/*/testlogs/test/llama/test.log"
-            "bazel-out/*/testlogs/test/bench_vs_xla/test.log"
-            "bazel-out/*/testlogs/test/jaxmd/test.log"
-            "bazel-out/*/testlogs/test/neuralgcm_test/test.log"
-            "bazel-out/*/testlogs/test/keras_test/test.log"
+            "bazel-out/**/test.log"
           retention-days: 90
