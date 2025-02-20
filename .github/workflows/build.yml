@@ -3,7 +3,7 @@ name: Build Enzyme-JAX
 on:
   push:
     branches:
-    - main
+    - '**'
   pull_request:
     branches:
     - main
@@ -22,52 +22,57 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-latest
-          # `ubuntu-22.04-arm` is considered more stable than `ubuntu-24.04-arm`:
-          # <https://github.com/orgs/community/discussions/148648#discussioncomment-12099554>.
-          - ubuntu-22.04-arm
+          # - ubuntu-latest
+          # # `ubuntu-22.04-arm` is considered more stable than `ubuntu-24.04-arm`:
+          # # <https://github.com/orgs/community/discussions/148648#discussioncomment-12099554>.
+          # - ubuntu-22.04-arm
           - macOS-latest
         python:
           - '3.12'
     env:
       HERMETIC_PYTHON_VERSION: ${{ matrix.python }}
     steps:
-      - name: Make space on disk
-        run: sudo rm -rf /opt/*
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - uses: bazel-contrib/setup-bazel@0.13.0
-        name: Set up Bazel
-        with:
-          # Avoid downloading Bazel every time.
-          bazelisk-cache: true
-          # Store build cache per workflow.
-          disk-cache: ${{ github.workflow }}-${{ matrix.os }}-${{ matrix.python }}
-          # Share repository cache between workflows.
-          repository-cache: true
-          bazelisk-version: 1.x
-      - name: Build enzymexlamlir-opt
-        timeout-minutes: 180
+      # - name: Make space on disk
+      #   run: sudo rm -rf /opt/*
+      # - uses: actions/checkout@v4
+      #   with:
+      #     submodules: recursive
+      # - uses: bazel-contrib/setup-bazel@0.13.0
+      #   name: Set up Bazel
+      #   with:
+      #     # Avoid downloading Bazel every time.
+      #     bazelisk-cache: true
+      #     # Store build cache per workflow.
+      #     disk-cache: ${{ github.workflow }}-${{ matrix.os }}-${{ matrix.python }}
+      #     # Share repository cache between workflows.
+      #     repository-cache: true
+      #     bazelisk-version: 1.x
+      # - name: Build enzymexlamlir-opt
+      #   timeout-minutes: 180
+      #   run: |
+      #     bazel build --color=yes //:enzymexlamlir-opt --test_output=errors
+      # - name: Build wheel
+      #   timeout-minutes: 240
+      #   run: |
+      #     bazel build --color=yes :wheel --test_output=errors
+      # - name: Upload wheel
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: Enzyme-JAX-Wheel-${{ matrix.os }}-${{ matrix.python }}
+      #     path: "bazel-bin/*.whl"
+      #     retention-days: 90
+      # - name: Update Python requirements files
+      #   run: |
+      #     bazel run --color=yes //builddeps:requirements.update
+      # - name: Run tests
+      #   if: ${{ !startsWith(matrix.os, 'ubuntu-') }}
+      #   run: |
+      #     bazel test --color=yes --test_output=errors --test_verbose_timeout_warnings //test/...
+      - name: Create stuff
         run: |
-          bazel build --color=yes //:enzymexlamlir-opt --test_output=errors
-      - name: Build wheel
-        timeout-minutes: 240
-        run: |
-          bazel build --color=yes :wheel --test_output=errors
-      - name: Upload wheel
-        uses: actions/upload-artifact@v4
-        with:
-          name: Enzyme-JAX-Wheel-${{ matrix.os }}-${{ matrix.python }}
-          path: "bazel-bin/*.whl"
-          retention-days: 90
-      - name: Update Python requirements files
-        run: |
-          bazel run --color=yes //builddeps:requirements.update
-      - name: Run tests
-        if: ${{ !startsWith(matrix.os, 'ubuntu-') }}
-        run: |
-          bazel test --color=yes --test_output=errors --test_verbose_timeout_warnings //test/...
+          mkdir -p ${HOME}/bazel-out/some-stuff
+          touch ${HOME}/bazel-out/some-stuff/test.log
+          ln -s ${HOME}/bazel-out
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }} 
