@@ -75,7 +75,7 @@ jobs:
           ln -s ${HOME}/bazel-out
       - name: Look
         run: |
-          ls bazel-out
+          realpath bazel-out
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }} 
