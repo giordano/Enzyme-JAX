@@ -22,10 +22,10 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          # - ubuntu-latest
-          # # `ubuntu-22.04-arm` is considered more stable than `ubuntu-24.04-arm`:
-          # # <https://github.com/orgs/community/discussions/148648#discussioncomment-12099554>.
-          # - ubuntu-22.04-arm
+          - ubuntu-latest
+          # `ubuntu-22.04-arm` is considered more stable than `ubuntu-24.04-arm`:
+          # <https://github.com/orgs/community/discussions/148648#discussioncomment-12099554>.
+          - ubuntu-22.04-arm
           - macOS-latest
         python:
           - '3.12'
@@ -71,16 +71,16 @@ jobs:
       - name: Create stuff
         run: |
           mkdir -p ${HOME}/bazel-out/some-stuff
-          touch ${HOME}/bazel-out/some-stuff/test.log
+          echo "hello world" > ${HOME}/bazel-out/some-stuff/test.log
           ln -s ${HOME}/bazel-out
-      - name: Look
+      - name: bazel-out path
         run: |
-          realpath bazel-out
+          echo "BAZEL_OUT_DIR=$(realpath bazel-out)" >> "${GITHUB_ENV}"
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }} 
         with:
           name: Enzyme-JAX-tests-${{ matrix.os }}-${{ matrix.python }}
           path: |
-            "bazel-out/**/test.log"
+            "${{ env.BAZEL_OUT_DIR }}/**/test.log"
           retention-days: 90
