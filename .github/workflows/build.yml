@@ -51,7 +51,7 @@ jobs:
         run: |
           bazel run --color=yes //builddeps:requirements.update
       - name: Build Enzyme-Jax
-        timeout-minutes: 180
+        timeout-minutes: 360
         run: |
           bazel build --color=yes ... --test_output=errors
       - name: Build wheel
