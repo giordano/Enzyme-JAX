@@ -47,10 +47,13 @@ jobs:
           # Share repository cache between workflows.
           repository-cache: true
           bazelisk-version: 1.x
-      - name: Build enzymexlamlir-opt
+      - name: Update Python requirements files
+        run: |
+          bazel run --color=yes //builddeps:requirements.update
+      - name: Build Enzyme-Jax
         timeout-minutes: 180
         run: |
-          bazel build --color=yes //:enzymexlamlir-opt --test_output=errors
+          bazel build --color=yes ... --test_output=errors
       - name: Build wheel
         timeout-minutes: 240
         run: |
@@ -61,9 +64,6 @@ jobs:
           name: Enzyme-JAX-Wheel-${{ matrix.os }}-${{ matrix.python }}
           path: "bazel-bin/*.whl"
           retention-days: 90
-      - name: Update Python requirements files
-        run: |
-          bazel run --color=yes //builddeps:requirements.update
       - name: Run tests
         if: ${{ !startsWith(matrix.os, 'ubuntu-') }}
         run: |
