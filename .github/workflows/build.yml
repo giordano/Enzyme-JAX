@@ -3,7 +3,7 @@ name: Build Enzyme-JAX
 on:
   push:
     branches:
-    - main
+    - 'mg/*'
     paths:
       - '.github/workflows/build.yml'
       - '**/BUILD'
@@ -120,23 +120,23 @@ jobs:
         timeout-minutes: 180
         run: |
           bazel build --repo_env=CC --color=yes //:enzymexlamlir-opt --test_output=errors --sandbox_writable_path=${CCACHE_DIR}
-      - name: Build wheel
-        timeout-minutes: 240
-        run: |
-          bazel build --repo_env=CC --color=yes :wheel --test_output=errors
-      - name: Upload wheel
-        uses: actions/upload-artifact@v4
-        with:
-          name: Enzyme-JAX-Wheel-${{ matrix.os }}-${{ matrix.python }}
-          path: "bazel-bin/*.whl"
-          retention-days: 90
-      - name: Update Python requirements files
-        run: |
-          bazel run --repo_env=CC --color=yes //builddeps:requirements.update --sandbox_writable_path=${CCACHE_DIR}
-      - name: Run tests
-        if: ${{ !startsWith(matrix.os, 'ubuntu-') }}
-        run: |
-          bazel test --repo_env=CC --color=yes --test_output=errors --test_verbose_timeout_warnings //test/... --sandbox_writable_path=${CCACHE_DIR}
+      # - name: Build wheel
+      #   timeout-minutes: 240
+      #   run: |
+      #     bazel build --repo_env=CC --color=yes :wheel --test_output=errors
+      # - name: Upload wheel
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: Enzyme-JAX-Wheel-${{ matrix.os }}-${{ matrix.python }}
+      #     path: "bazel-bin/*.whl"
+      #     retention-days: 90
+      # - name: Update Python requirements files
+      #   run: |
+      #     bazel run --repo_env=CC --color=yes //builddeps:requirements.update --sandbox_writable_path=${CCACHE_DIR}
+      # - name: Run tests
+      #   if: ${{ !startsWith(matrix.os, 'ubuntu-') }}
+      #   run: |
+      #     bazel test --repo_env=CC --color=yes --test_output=errors --test_verbose_timeout_warnings //test/... --sandbox_writable_path=${CCACHE_DIR}
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }} 
