@@ -45,7 +45,7 @@ jobs:
           - ubuntu-latest
           # `ubuntu-22.04-arm` is considered more stable than `ubuntu-24.04-arm`:
           # <https://github.com/orgs/community/discussions/148648#discussioncomment-12099554>.
-          - ubuntu-22.04-arm
+          # - ubuntu-22.04-arm
           - macOS-latest
         python:
           - '3.12'
@@ -94,7 +94,7 @@ jobs:
           if [[ ${{ runner.os }} == "macOS" ]]; then
               echo "CC=false" >> "${GITHUB_ENV}"
           else
-              echo "CC=false" >> "${GITHUB_ENV}"
+              echo "CC=${BINDIR}/gcc" >> "${GITHUB_ENV}"
           fi
       - name: Show compilers
         run: |
@@ -120,6 +120,7 @@ jobs:
         timeout-minutes: 180
         run: |
           bazel build --repo_env=CC --color=yes //:enzymexlamlir-opt --test_output=errors --sandbox_writable_path=${CCACHE_DIR}
+          ccache -s
       # - name: Build wheel
       #   timeout-minutes: 240
       #   run: |
