@@ -120,7 +120,7 @@ jobs:
         timeout-minutes: 180
         run: |
           bazel build --repo_env=CC --color=yes //:enzymexlamlir-opt --test_output=errors --sandbox_writable_path=${CCACHE_DIR}
-          ccache -s
+          ccache -sv
       # - name: Build wheel
       #   timeout-minutes: 240
       #   run: |
