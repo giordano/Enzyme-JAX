@@ -92,9 +92,9 @@ jobs:
           echo "CCACHE_DIR=${CCACHE_DIR}" >> "${GITHUB_ENV}"
           echo "PATH=${BINDIR}:${PATH}" >> "${GITHUB_ENV}"
           if [[ ${{ runner.os }} == "macOS" ]]; then
-              echo "CC=${BINDIR}/clang" >> "${GITHUB_ENV}"
+              echo "CC=false" >> "${GITHUB_ENV}"
           else
-              echo "CC=${BINDIR}/gcc" >> "${GITHUB_ENV}"
+              echo "CC=false" >> "${GITHUB_ENV}"
           fi
       - name: Show compilers
         run: |
