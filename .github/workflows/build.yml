@@ -48,7 +48,7 @@ jobs:
           - ubuntu-22.04-arm
           - macOS-latest
         python:
-          - '3.12'
+          - '3.11'
     env:
       HERMETIC_PYTHON_VERSION: ${{ matrix.python }}
     steps:
