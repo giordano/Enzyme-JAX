@@ -43,7 +43,8 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.JAX_LATEST_COMMIT }}
+          # token: ${{ secrets.JAX_LATEST_COMMIT }}
+          token: ${{ secrets.github_token }}
           commit-message: |
             Update JAX to commit ${{ env.NEW_JAX_COMMIT }}
 
